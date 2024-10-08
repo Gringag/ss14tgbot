@@ -3,8 +3,8 @@ import logging
 import aiohttp
 from urllib.parse import urlparse, urlunparse
 from typing import Dict, Any
-from telegram import Update, Bot, Message
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 log = logging.getLogger("gamestatus")
 
@@ -32,7 +32,6 @@ async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         await update.message.reply_text("Укажите адрес сервера.")
         return
 
-    context.user_data["address"] = addr
     message = await update.message.reply_text("Получение статуса сервера...")
     
     while True:
@@ -46,36 +45,40 @@ async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             gamemap = json_data.get("map", "?")
             preset = json_data.get("preset", "?")
 
-            rlevel = json_data.get("run_level")
+            rlevel = json_data.get("run_level", -1)
             status = "Unknown"
             if rlevel == 0:
                 status = "В лобби"
             elif rlevel == 1:
-                status = "Раунд идёт"
+                status = "В игре"
             elif rlevel == 2:
-                status = "Конец раунда"
+                status = "Окончание игры"
 
             response_text = (
-                f"**🚀 Статус сервера:** {status}\n"
-                f"**👥 Кол-во игроков:** {players_count}/{max_players}\n"
-                f"**💡 ID раунда:** {round_id}\n"
-                f"**🗺️ Карта:** {gamemap}\n"
-                f"**📦 Пресет:** {preset}"
+                f"🚀 Статус сервера: {status}\n"
+                f"👥 Кол-во игроков: {players_count}/{max_players}\n"
+                f"💡 ID раунда: {round_id}\n"
+                f"🗺 Карта: {gamemap}\n"
+                f"📦 Пресет: {preset}"
             )
 
             await message.edit_text(response_text, parse_mode="Markdown")
+            await asyncio.sleep(60)  # Обновлять каждые 60 секунд
 
-            await asyncio.sleep(30)  # Обновлять каждые 60 секунд
-
+        except aiohttp.ClientError as e:
+            log.exception("Ошибка сети: %s", str(e))
+            await message.edit_text("Ошибка при подключении к серверу.", parse_mode="Markdown")
+            break
         except Exception as e:
-            log.exception("Failed to update server status: %s", str(e))
-            await message.edit_text("Ошибка при обновлении статуса.", parse_mode="Markdown")
+            log.exception("Неизвестная ошибка: %s", str(e))
+            await message.edit_text("Произошла ошибка.", parse_mode="Markdown")
             break
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text("Используйте /status <адрес> чтобы проверять статус сервера.")
 
 def main() -> None:
+    # Замените 'ваш_токен_бота' на ваш токен
     application = ApplicationBuilder().token('7074181875:AAHlhY510AC9-fXZw3_Pd4SD-ko1oY1LR3o').build()
 
     application.add_handler(CommandHandler("start", start))
