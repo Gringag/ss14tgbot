@@ -1,15 +1,12 @@
 import asyncio
 import logging
 import aiohttp
-import dateutil.parser
 from urllib.parse import urlparse, urlunparse
-from typing import Dict, Any, Optional
-from telegram import Update, ParseMode, Bot, Message
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, Filters
+from typing import Dict, Any
+from telegram import Update, Bot, Message
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 
 log = logging.getLogger("gamestatus")
-
-TYPE_SS14 = "ss14"
 
 # Настройка логирования
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -66,13 +63,13 @@ async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                 f"**Preset:** {preset}"
             )
 
-            await message.edit_text(response_text, parse_mode=ParseMode.MARKDOWN)
+            await message.edit_text(response_text, parse_mode="Markdown")
 
             await asyncio.sleep(60)  # Обновлять каждые 60 секунд
 
         except Exception as e:
             log.exception("Failed to update server status: %s", str(e))
-            await message.edit_text("Ошибка при обновлении статуса.", parse_mode=ParseMode.MARKDOWN)
+            await message.edit_text("Ошибка при обновлении статуса.", parse_mode="Markdown")
             break
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
