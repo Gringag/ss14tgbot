@@ -87,7 +87,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 def main() -> None:
     # Замените 'ваш_токен_бота' на ваш токен
-    application = ApplicationBuilder().token('ваш_токен_бота').build()
+    application = ApplicationBuilder().token('7074181875:AAHlhY510AC9-fXZw3_Pd4SD-ko1oY1LR3o').build()
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("status", update_status))
