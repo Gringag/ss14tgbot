@@ -49,23 +49,23 @@ async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             rlevel = json_data.get("run_level")
             status = "Unknown"
             if rlevel == 0:
-                status = "Pre game lobby"
+                status = "В лобби"
             elif rlevel == 1:
-                status = "In game"
+                status = "Раунд идёт"
             elif rlevel == 2:
-                status = "Post game"
+                status = "Конец раунда"
 
             response_text = (
-                f"**Статус сервера:** {status}\n"
-                f"**Игроков:** {players_count}/{max_players}\n"
-                f"**ID раунда:** {round_id}\n"
-                f"**Карта:** {gamemap}\n"
-                f"**Preset:** {preset}"
+                f"**🚀 Статус сервера:** {status}\n"
+                f"**👥 Кол-во игроков:** {players_count}/{max_players}\n"
+                f"**💡 ID раунда:** {round_id}\n"
+                f"**🗺️ Карта:** {gamemap}\n"
+                f"**📦 Пресет:** {preset}"
             )
 
             await message.edit_text(response_text, parse_mode="Markdown")
 
-            await asyncio.sleep(60)  # Обновлять каждые 60 секунд
+            await asyncio.sleep(30)  # Обновлять каждые 60 секунд
 
         except Exception as e:
             log.exception("Failed to update server status: %s", str(e))
