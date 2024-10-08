@@ -52,18 +52,18 @@ async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             rlevel = json_data.get("run_level", -1)
             status = "Unknown"
             if rlevel == 0:
-                status = "Pre game lobby"
+                status = "В лобби"
             elif rlevel == 1:
-                status = "In game"
+                status = "В игре"
             elif rlevel == 2:
-                status = "Post game"
+                status = "Окончание раунда"
 
             response_text = (
-                f"**Статус сервера:** {status}\n"
-                f"**Игроков:** {players_count}/{max_players}\n"
-                f"**ID раунда:** {round_id}\n"
-                f"**Карта:** {gamemap}\n"
-                f"**Preset:** {preset}"
+                f"🚀 Статус сервера: {status}\n"
+                f"👥 Кол-во игроков: {players_count}/{max_players}\n"
+                f"💡 ID раунда: {round_id}\n"
+                f"🗺 Карта: {gamemap}\n"
+                f"📦 Пресет: {preset}"
             )
 
             # Проверка на изменение текста перед редактированием
