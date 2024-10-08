@@ -14,6 +14,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 async def get_server_status(addr: str) -> Dict[str, Any]:
     async with aiohttp.ClientSession() as session:
         async with session.get(addr + "/status") as resp:
+            resp.raise_for_status()  # Проверка на ошибки ответа
             return await resp.json()
 
 def get_ss14_status_url(url: str) -> str:
@@ -70,7 +71,7 @@ async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                 await message.edit_text(response_text, parse_mode="Markdown")
                 previous_text = response_text
 
-            await asyncio.sleep(30)  # Обновлять каждые 60 секунд
+            await asyncio.sleep(60)  # Обновлять каждые 60 секунд
 
         except aiohttp.ClientError as e:
             log.exception("Ошибка сети: %s", str(e))
@@ -80,6 +81,8 @@ async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             log.exception("Неизвестная ошибка: %s", str(e))
             await message.edit_text("Произошла ошибка.", parse_mode="Markdown")
             break
+        finally:
+            await asyncio.sleep(1)  # Пауза между итерациями, чтобы избежать перегрузки
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text("Используйте /status <адрес> чтобы проверять статус сервера.")
