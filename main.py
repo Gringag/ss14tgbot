@@ -71,7 +71,7 @@ async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                 await message.edit_text(response_text, parse_mode="Markdown")
                 previous_text = response_text
 
-            await asyncio.sleep(60)  # Обновлять каждые 60 секунд
+            await asyncio.sleep(10)  # Обновлять каждые 60 секунд
 
     except asyncio.CancelledError:
         log.info("Обновление статуса завершено.")
