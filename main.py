@@ -11,6 +11,9 @@ log = logging.getLogger("gamestatus")
 # Настройка логирования
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
+# Список пользователей с доступом (по ID)
+ACCESS_LIST = [7298108378, 1001266420]  # Замените на актуальные ID пользователей
+
 async def get_server_status(addr: str) -> Dict[str, Any]:
     async with aiohttp.ClientSession() as session:
         async with session.get(addr + "/status") as resp:
@@ -29,11 +32,16 @@ def get_ss14_status_url(url: str) -> str:
 
 async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     addr = context.args[0] if context.args else None
+    user_id = update.message.from_user.id
+
+    if user_id not in ACCESS_LIST:  # Проверка наличия доступа
+        await update.message.reply_text("У вас нет доступа к этой команде.")
+        return
+    
     if not addr:
         await update.message.reply_text("Укажите адрес сервера.")
         return
 
-    # Отправляем начальное сообщение и сохраняем его в переменной message.
     message = await update.message.reply_text("Получение статуса сервера...")
 
     previous_text = ""
@@ -52,11 +60,11 @@ async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             rlevel = json_data.get("run_level", -1)
             status = "Unknown"
             if rlevel == 0:
-                status = "В лобби"
+                status = "Pre game lobby"
             elif rlevel == 1:
-                status = "В игре"
+                status = "In game"
             elif rlevel == 2:
-                status = "Окончание раунда"
+                status = "Post game"
 
             response_text = (
                 f"🚀 Статус сервера: {status}\n"
@@ -66,7 +74,6 @@ async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                 f"📦 Пресет: {preset}"
             )
 
-            # Проверка на изменение текста перед редактированием
             if response_text != previous_text:
                 await message.edit_text(response_text, parse_mode="Markdown")
                 previous_text = response_text
@@ -86,7 +93,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text("Используйте /status <адрес> чтобы проверять статус сервера.")
 
 def main() -> None:
-    # Замените 'ваш_токен_бота' на ваш токен
     application = ApplicationBuilder().token('7074181875:AAHlhY510AC9-fXZw3_Pd4SD-ko1oY1LR3o').build()
 
     application.add_handler(CommandHandler("start", start))
@@ -95,7 +101,6 @@ def main() -> None:
     try:
         application.run_polling()
     finally:
-        # Остановка бота и отмена активных задач
         log.info("Бот остановлен.")
 
 if __name__ == '__main__':
