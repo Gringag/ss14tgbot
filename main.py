@@ -52,18 +52,18 @@ async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             rlevel = json_data.get("run_level", -1)
             status = "Unknown"
             if rlevel == 0:
-                status = "В лобби"
+                status = "Pre game lobby"
             elif rlevel == 1:
-                status = "В игре"
+                status = "In game"
             elif rlevel == 2:
-                status = "Окончание раунда"
+                status = "Post game"
 
             response_text = (
-                f"🚀 Статус сервера: {status}\n"
-                f"👥 Кол-во игроков: {players_count}/{max_players}\n"
-                f"💡 ID раунда: {round_id}\n"
-                f"🗺 Карта: {gamemap}\n"
-                f"📦 Пресет: {preset}"
+                f"**Статус сервера:** {status}\n"
+                f"**Игроков:** {players_count}/{max_players}\n"
+                f"**ID раунда:** {round_id}\n"
+                f"**Карта:** {gamemap}\n"
+                f"**Preset:** {preset}"
             )
 
             # Проверка на изменение текста перед редактированием
@@ -71,7 +71,7 @@ async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                 await message.edit_text(response_text, parse_mode="Markdown")
                 previous_text = response_text
 
-            await asyncio.sleep(10)  # Обновлять каждые 60 секунд
+            await asyncio.sleep(60)  # Обновлять каждые 60 секунд
 
     except asyncio.CancelledError:
         log.info("Обновление статуса завершено.")
@@ -92,9 +92,11 @@ def main() -> None:
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("status", update_status))
 
-    # Используйте контекстный менеджер для корректного завершения
-    with application:
+    try:
         application.run_polling()
+    finally:
+        # Остановка бота и отмена активных задач
+        log.info("Бот остановлен.")
 
 if __name__ == '__main__':
     main()
