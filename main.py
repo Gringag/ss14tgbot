@@ -92,7 +92,9 @@ def main() -> None:
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("status", update_status))
 
-    application.run_polling()
+    # Используйте контекстный менеджер для корректного завершения
+    with application:
+        application.run_polling()
 
 if __name__ == '__main__':
     main()
