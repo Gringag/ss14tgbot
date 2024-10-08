@@ -32,7 +32,10 @@ async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         await update.message.reply_text("Укажите адрес сервера.")
         return
 
+    # Отправляем начальное сообщение и сохраняем его в переменной message.
     message = await update.message.reply_text("Получение статуса сервера...")
+
+    previous_text = ""
     
     while True:
         try:
@@ -62,8 +65,12 @@ async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                 f"📦 Пресет: {preset}"
             )
 
-            await message.edit_text(response_text, parse_mode="Markdown")
-            await asyncio.sleep(60)  # Обновлять каждые 60 секунд
+            # Проверка на изменение текста перед редактированием
+            if response_text != previous_text:
+                await message.edit_text(response_text, parse_mode="Markdown")
+                previous_text = response_text
+
+            await asyncio.sleep(30)  # Обновлять каждые 60 секунд
 
         except aiohttp.ClientError as e:
             log.exception("Ошибка сети: %s", str(e))
