@@ -38,8 +38,8 @@ async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
     previous_text = ""
     
-    while True:
-        try:
+    try:
+        while True:
             server_url = get_ss14_status_url(addr)
             json_data = await get_server_status(server_url)
 
@@ -56,7 +56,7 @@ async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             elif rlevel == 1:
                 status = "В игре"
             elif rlevel == 2:
-                status = "Окончание игры"
+                status = "Окончание раунда"
 
             response_text = (
                 f"🚀 Статус сервера: {status}\n"
@@ -71,25 +71,23 @@ async def update_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                 await message.edit_text(response_text, parse_mode="Markdown")
                 previous_text = response_text
 
-            await asyncio.sleep(60)  # Обновлять каждые 60 секунд
+            await asyncio.sleep(10)  # Обновлять каждые 60 секунд
 
-        except aiohttp.ClientError as e:
-            log.exception("Ошибка сети: %s", str(e))
-            await message.edit_text("Ошибка при подключении к серверу.", parse_mode="Markdown")
-            break
-        except Exception as e:
-            log.exception("Неизвестная ошибка: %s", str(e))
-            await message.edit_text("Произошла ошибка.", parse_mode="Markdown")
-            break
-        finally:
-            await asyncio.sleep(1)  # Пауза между итерациями, чтобы избежать перегрузки
+    except asyncio.CancelledError:
+        log.info("Обновление статуса завершено.")
+    except aiohttp.ClientError as e:
+        log.exception("Ошибка сети: %s", str(e))
+        await message.edit_text("Ошибка при подключении к серверу.", parse_mode="Markdown")
+    except Exception as e:
+        log.exception("Неизвестная ошибка: %s", str(e))
+        await message.edit_text("Произошла ошибка.", parse_mode="Markdown")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text("Используйте /status <адрес> чтобы проверять статус сервера.")
 
 def main() -> None:
     # Замените 'ваш_токен_бота' на ваш токен
-    application = ApplicationBuilder().token('7074181875:AAHlhY510AC9-fXZw3_Pd4SD-ko1oY1LR3o').build()
+    application = ApplicationBuilder().token('ваш_токен_бота').build()
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("status", update_status))
