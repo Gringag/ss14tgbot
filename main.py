@@ -93,7 +93,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text("Используйте /status <адрес> чтобы проверять статус сервера.")
 
 def main() -> None:
-    application = ApplicationBuilder().token('7074181875:AAHlhY510AC9-fXZw3_Pd4SD-ko1oY1LR3o').build()
+    application = ApplicationBuilder().token('token').build()
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("status", update_status))
